@@ -62,8 +62,6 @@ function getCurrentTemperatureAtPosition(position) {
 
 
 function getCurrentTemperature(address) {
-  // var position = getAddressPosition.position;
-  // var temperature = getCurrentTemperatureAtPosition.tempOnly;
   getAddressPosition(address)
   .then(function(response) {
       return getCurrentTemperatureAtPosition(response); 
@@ -77,5 +75,12 @@ getCurrentTemperature("665 Quaker Road, Welland ON, L3C 3H1");
 
 
 function getDistanceFromIss(address) {
-  
+  Promise.all([getIssPosition(), getAddressPosition(address)])
+  .then(function(data) { 
+  //put math function here!!
+   console.log("That position is " + getDistance(data[0], data[1]) + "km away from ISS." );
+   return getDistance(data[0], data[1]);
+});
 }
+
+getDistanceFromIss("665 Quaker Road, Welland ON, L3C 3H1");

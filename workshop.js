@@ -1,11 +1,5 @@
 var request = require('request-promise');
 
-// promiseFunction1(input)
-//   .then(promiseFunction2)
-//   .then(function(data){
-//     console.log(data, "end data");
-//   })
-
 // Euclidian distance between two points
 function getDistance(pos1, pos2) {
   return Math.sqrt(Math.pow(pos1.lat - pos2.lat, 2) + Math.pow(pos1.lng - pos2.lng, 2));
@@ -20,15 +14,16 @@ function getIssPosition() {
       var latLng = {};
       latLng.lat = longLocation.iss_position.latitude;
       latLng.lng = longLocation.iss_position.longitude;
-      
       // console.log(latLng);
-      
       // Return object with lat and lng
       return latLng;
     })
-    //need to add .catch error here
+     .catch(function(error) {
+    console.log("There was an error with your getIssPosition request");
+  })
 }
-getIssPosition();
+
+// getIssPosition();
 
 function getAddressPosition(address) {
   var api = "AIzaSyDrqwaIXfB_nm_a38MmL7y6OD3KLgXBsgc";
@@ -36,37 +31,50 @@ function getAddressPosition(address) {
   .then(
     function(response) {
       var addressLocation = JSON.parse(response);
-      var addressLatLng = {};
-      addressLatLng.lat = addressLocation.results[0].geometry.location.lat;
-      addressLatLng.lng = addressLocation.results[0].geometry.location.lng;
-      
-      // console.log(addressLatLng);
-      return addressLatLng;
-    });
-  
-} getAddressPosition("665 Quaker Road, Welland, ON L3C 3H1");
+      var position = {};
+      position.lat = addressLocation.results[0].geometry.location.lat;
+      position.lng = addressLocation.results[0].geometry.location.lng;
+      // console.log(position);
+      return position;
+    })
+    .catch(function(error) {
+    console.log("There was an error with your getAddressPosition request");
+  })
+} 
+// getAddressPosition("665 Quaker Road, Welland, ON L3C 3H1");
 
 
 function getCurrentTemperatureAtPosition(position) {
-  return request("https://api.darksky.net/forecast/88d37b4e17f7b3ccdb8368d2b3c4bf8b/43.0219085,-79.27941419999999") 
+  return request("https://api.darksky.net/forecast/88d37b4e17f7b3ccdb8368d2b3c4bf8b/" + position.lat + "," + position.lng) 
   .then(
     function(response) {
       var tempLatLng = JSON.parse(response);
       var currentTemp = tempLatLng["currently"];
       var tempOnly = currentTemp["temperature"];
-        console.log(tempOnly);
+        // console.log(tempOnly);
         return tempOnly;
-    });
-
-}
-// var position = {latitude: 43.0219085, longitude :-79.27941419999999 };   need to figure out how to pass the param correctly!! 
-getCurrentTemperatureAtPosition();
-
+    })
+    .catch(function(error) {
+      console.log("There was an error with your getCurrentTemperatureAtPosition request");
+  })
+}    
+// getCurrentTemperatureAtPosition({lat: 43.0219085, lng:-79.27941419999999 });
 
 
 function getCurrentTemperature(address) {
-
+  // var position = getAddressPosition.position;
+  // var temperature = getCurrentTemperatureAtPosition.tempOnly;
+  getAddressPosition(address)
+  .then(function(response) {
+      return getCurrentTemperatureAtPosition(response); 
+  })
+  .catch(function(error) {
+    console.log("There was an error with your getCurrentTempertaure request");
+  });
 }
+
+getCurrentTemperature("665 Quaker Road, Welland ON, L3C 3H1");
+
 
 function getDistanceFromIss(address) {
   
